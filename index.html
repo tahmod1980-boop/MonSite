@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>MiniMind Lab – Démo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-slate-950 text-slate-100">
+  <div class="max-w-5xl mx-auto py-10 px-4 space-y-8">
+
+    <!-- En-tête -->
+    <header class="bg-slate-900/70 border border-slate-700 rounded-2xl p-6 flex flex-col gap-4">
+      <div>
+        <h1 class="text-3xl font-semibold">
+          Comprends, classe et explique les infos comme un·e pro.
+        </h1>
+        <p class="text-slate-300 mt-2">
+          Choisis un mode, pose ta question et MiniMind te répond.
+        </p>
+      </div>
+
+      <div class="flex flex-wrap gap-4 text-sm">
+        <div class="bg-slate-800/60 rounded-xl px-4 py-3">
+          <div class="text-xs uppercase text-slate-400">Points curiosité</div>
+          <div class="text-2xl font-semibold">37</div>
+          <div class="text-xs text-emerald-400">+5 chat · +7 classification · +9 vision</div>
+        </div>
+
+        <div class="bg-slate-800/60 rounded-xl px-4 py-3">
+          <div class="text-xs uppercase text-slate-400">Mode sélectionné</div>
+          <div id="currentModeLabel" class="text-lg font-semibold">Analyse d'image</div>
+        </div>
+
+        <div class="bg-slate-800/60 rounded-xl px-4 py-3 flex-1 min-w-[200px]">
+          <div class="text-xs uppercase text-slate-400 mb-1">Dernières interactions</div>
+          <ul class="text-xs text-slate-300 space-y-1">
+            <li>Analyse d'image — 00:41</li>
+            <li>Analyse d'image — 00:32</li>
+            <li>Classification de texte — 00:30</li>
+            <li>Classification de texte — 00:28</li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- Choix du mode -->
+    <section class="grid md:grid-cols-[2fr,3fr] gap-6">
+      <div class="space-y-4">
+        <h2 class="text-lg font-semibold">1. Choisis un mode</h2>
+
+        <div class="grid gap-3">
+          <!-- Boutons de mode -->
+          <button
+            id="btnChat"
+            class="mode-btn bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-2xl p-4 text-left transition">
+            <div class="font-semibold">Chatbot pédagogique</div>
+            <p class="text-sm text-slate-300">
+              Pose ta question à l’IA. Tu reçois une réponse + l’explication du raisonnement.
+            </p>
+          </button>
+
+          <button
+            id="btnClassify"
+            class="mode-btn bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-2xl p-4 text-left transition">
+            <div class="font-semibold">Classification de texte</div>
+            <p class="text-sm text-slate-300">
+              Analyse un message ou une info (question, opinion, info, fake news potentielle…).
+            </p>
+          </button>
+
+          <button
+            id="btnVision"
+            class="mode-btn bg-sky-700 border border-sky-400/70 rounded-2xl p-4 text-left shadow-lg shadow-sky-500/20 transition">
+            <div class="font-semibold">Analyse d’image</div>
+            <p class="text-sm text-slate-100">
+              Téléverse une image (PNG/JPG) et MiniMind t’explique ce qu’elle montre.
+            </p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Carte de réponse -->
+      <div class="space-y-4">
+        <h2 class="text-lg font-semibold">Réponse MiniMind</h2>
+        <div class="bg-slate-900 rounded-2xl border border-slate-700 p-4 space-y-3">
+          <div class="flex items-center gap-2 text-amber-300">
+            <span>⭐</span>
+            <span class="text-sm font-semibold" id="responseTitle">
+              Analyse d'image · Modèle gpt-41-mini (démo)
+            </span>
+          </div>
+          <p id="responseText" class="text-sm text-slate-100 leading-relaxed">
+            Envoie un texte ou une image pour voir la réponse de MiniMind.
+          </p>
+        </div>
+
+        <!-- Explication -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-700 p-4 space-y-2">
+          <div class="text-xs uppercase text-slate-400">Explication</div>
+          <p id="explanationText" class="text-sm text-slate-200">
+            L’explication détaillera la compréhension, la classification ou la description générée par l’IA.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Zone de saisie -->
+    <section class="space-y-4">
+      <h2 class="text-lg font-semibold">2. Décris ta question ou ton texte</h2>
+
+      <!-- Formulaire commun -->
+      <form id="form" class="bg-slate-900 rounded-2xl border border-slate-700 p-4 space-y-4">
+
+        <!-- Zone texte (pour chat + classification) -->
+        <div id="textBlock">
+          <label class="block text-sm mb-2">Texte / question</label>
+          <textarea
+            id="textInput"
+            rows="4"
+            class="w-full rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+            placeholder="Écris ici ta question, ton avis, une info à analyser…"></textarea>
+        </div>
+
+        <!-- Upload d'image (pour vision) -->
+        <div id="imageBlock" class="hidden">
+          <label class="block text-sm mb-2">Image (PNG / JPG)</label>
+          <input
+            id="imageInput"
+            type="file"
+            accept="image/png,image/jpeg"
+            class="block w-full text-sm text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-sky-600 file:text-white hover:file:bg-sky-500" />
+        </div>
+
+        <button
+          type="submit"
+          class="inline-flex items-center px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-sm font-semibold shadow">
+          Envoyer à MiniMind
+        </button>
+      </form>
+    </section>
+  </div>
+
+  <script>
+    // =========================
+    //  Logique de sélection de mode
+    // =========================
+    let currentMode = "vision"; // "chat", "classification", "vision"
+
+    const modeButtons = {
+      chat: document.getElementById("btnChat"),
+      classification: document.getElementById("btnClassify"),
+      vision: document.getElementById("btnVision"),
+    };
+
+    const currentModeLabel = document.getElementById("currentModeLabel");
+    const textBlock = document.getElementById("textBlock");
+    const imageBlock = document.getElementById("imageBlock");
+
+    function updateMode(mode) {
+      currentMode = mode;
+      // Style des boutons
+      for (const [key, btn] of Object.entries(modeButtons)) {
+        if (key === mode) {
+          btn.classList.add("bg-sky-700", "border-sky-400/70", "shadow-lg", "shadow-sky-500/20");
+          btn.classList.remove("bg-slate-800", "border-slate-600");
+        } else {
+          btn.classList.add("bg-slate-800", "border-slate-600");
+          btn.classList.remove("bg-sky-700", "border-sky-400/70", "shadow-lg", "shadow-sky-500/20");
+        }
+      }
+
+      // Texte du label
+      if (mode === "chat") currentModeLabel.textContent = "Chatbot pédagogique";
+      if (mode === "classification") currentModeLabel.textContent = "Classification de texte";
+      if (mode === "vision") currentModeLabel.textContent = "Analyse d'image";
+
+      // Affichage des blocs
+      if (mode === "vision") {
+        imageBlock.classList.remove("hidden");
+        textBlock.classList.add("hidden");
+      } else {
+        imageBlock.classList.add("hidden");
+        textBlock.classList.remove("hidden");
+      }
+    }
+
+    modeButtons.chat.addEventListener("click", () => updateMode("chat"));
+    modeButtons.classification.addEventListener("click", () => updateMode("classification"));
+    modeButtons.vision.addEventListener("click", () => updateMode("vision"));
+
+    // =========================
+    //  Envoi du formulaire au backend FastAPI
+    // =========================
+    const form = document.getElementById("form");
+    const textInput = document.getElementById("textInput");
+    const imageInput = document.getElementById("imageInput");
+    const responseText = document.getElementById("responseText");
+    const explanationText = document.getElementById("explanationText");
+    const responseTitle = document.getElementById("responseTitle");
+
+    const API_BASE = "http://127.0.0.1:8000/api"; // backend FastAPI
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      let url = "";
+      const formData = new FormData();
+
+      if (currentMode === "chat") {
+        url = API_BASE + "/chat";
+        formData.append("prompt", textInput.value);
+      } else if (currentMode === "classification") {
+        url = API_BASE + "/classify";
+        formData.append("text", textInput.value);
+      } else if (currentMode === "vision") {
+        url = API_BASE + "/analyze-image";
+        if (!imageInput.files[0]) {
+          alert("Merci de choisir une image.");
+          return;
+        }
+        formData.append("file", imageInput.files[0]);
+      }
+
+      responseText.textContent = "MiniMind réfléchit…";
+      explanationText.textContent = "";
+
+      try {
+        const res = await fetch(url, {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+
+        if (currentMode === "chat") {
+          responseTitle.textContent = "Réponse MiniMind · Chat";
+          responseText.textContent = data.answer;
+          explanationText.textContent =
+            "Ici tu peux ajouter une explication détaillée du raisonnement (par ex. en demandant au modèle de justifier sa réponse).";
+        } else if (currentMode === "classification") {
+          responseTitle.textContent = "Résultat · Classification de texte";
+          responseText.textContent =
+            `Label prédit : ${data.label} (confiance : ${Math.round(data.confidence * 100)} %)`;
+          explanationText.textContent = data.reason;
+        } else {
+          responseTitle.textContent = "Résultat · Analyse d'image";
+          responseText.textContent = data.description;
+          explanationText.textContent =
+            "Le modèle décrit ce qu’il voit dans l’image, comme dans la démo de SupNum / MiniMind.";
+        }
+      } catch (err) {
+        console.error(err);
+        responseText.textContent = "Erreur lors de l'appel à l'API.";
+        explanationText.textContent = "";
+      }
+    });
+  </script>
+</body>
+</html>
